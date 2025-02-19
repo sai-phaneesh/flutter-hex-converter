@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hex to RGB Converter</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        margin: 0;
+        transition: background-color 0.3s, color 0.3s;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: var(--container-bg);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: background 0.3s;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      form input,
+      form button {
+        padding: 10px;
+        /* margin: 5px 0; */
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background: var(--input-bg);
+        color: var(--text-color);
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        color: white;
+        background-color: #0056b3;
+      }
+      .result {
+        height: 40px;
+        display: flex;
+        gap: 10px;
+        background: var(--input-bg);
+        border-radius: 4px;
+        border: 1px solid var(--border-color);
+      }
+      .result > span {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+      .color-display {
+        height: 50px;
+        border-radius: 4px;
+        background-color: #eee;
+      }
+      .border {
+        border: 1px solid var(--border-color);
+      }
+      .notification {
+        visibility: hidden;
+        min-width: 200px;
+        background-color: #4caf50;
+        color: white;
+        text-align: center;
+        border-radius: 2px;
+        padding: 16px;
+        position: fixed;
+        z-index: 1;
+        top: 24px;
+        right: 24px;
+        font-size: 17px;
+        opacity: 0;
+        transition: opacity 0.6s, visibility 0.6s;
+      }
+      .notification.show {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      /* Theme Toggle Button */
+      .theme-toggle {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        padding: 10px;
+        background: var(--container-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+        color: var(--text-color);
+      }
+      .theme-toggle:hover {
+        background: var(--input-bg);
+      }
+
+      /* Light Mode */
+      :root {
+        --bg-color: #f0f0f0;
+        --text-color: #000;
+        --container-bg: #fff;
+        --border-color: #ddd;
+        --input-bg: #fff;
+      }
+
+      /* Dark Mode */
+      [data-theme="dark"] {
+        --bg-color: #121212;
+        --text-color: #ffffff;
+        --container-bg: #1e1e1e;
+        --border-color: #333;
+        --input-bg: #292929;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" onclick="toggleTheme()">🌗 Theme</button>
+
+    <div class="container">
+      <h1>Hex to RGB Converter <br />for Flutter</h1>
+      <form id="hexForm">
+        <input
+          type="text"
+          id="hexInput"
+          oninput="convertToUppercase(this)"
+          placeholder="Enter hex value (e.g., #ff5733)"
+        />
+        <button onclick="convertHexToRGB()" type="button">Convert</button>
+      </form>
+      <div class="result" id="result" title="Click to copy">
+        <span onclick="copyToClipboard()" id="rgbText"></span>
+      </div>
+      <div class="color-display border" id="colorDisplay"></div>
+      <div class="notification" id="notification">Copied successfully!</div>
+    </div>
+
+    <script>
+      function convertToUppercase(input) {
+        input.value = input.value.toUpperCase();
+      }
+
+      function convertHexToRGB() {
+        const hexInput = document.getElementById("hexInput").value;
+        const resultDiv = document.getElementById("rgbText");
+        const colorDisplayDiv = document.getElementById("colorDisplay");
+
+        if (/^#([0-9A-F]{3}){1,2}$/i.test(hexInput)) {
+          let hex = hexInput.substring(1);
+          if (hex.length === 3) {
+            hex = hex
+              .split("")
+              .map((x) => x + x)
+              .join("");
+          }
+          const bigint = parseInt(hex, 16);
+          const r = (bigint >> 16) & 255;
+          const g = (bigint >> 8) & 255;
+          const b = bigint & 255;
+
+          resultDiv.textContent = `Color.fromRGBO(${r}, ${g}, ${b}, 1)`;
+          colorDisplayDiv.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+          resultDiv.style.color = `rgb(${r * 0.7}, ${g * 0.7}, ${b * 0.7})`;
+        } else {
+          resultDiv.textContent = "Invalid hex code";
+          resultDiv.style.color = "#f00";
+          colorDisplayDiv.style.backgroundColor = "transparent";
+        }
+      }
+
+      function copyToClipboard() {
+        const rgbText = document.getElementById("rgbText").textContent;
+        if (rgbText && rgbText !== "Invalid hex code")
+          navigator.clipboard.writeText(rgbText).then(() => {
+            showNotification();
+          });
+      }
+
+      function showNotification() {
+        const notification = document.getElementById("notification");
+        notification.classList.add("show");
+        setTimeout(() => {
+          notification.classList.remove("show");
+        }, 2000);
+      }
+      
+      function toggleTheme() {
+        const themes = ["light", "dark", "system"];
+        let currentTheme = localStorage.getItem("theme") || "system";
+        let nextTheme =
+          themes[(themes.indexOf(currentTheme) + 1) % themes.length];
+
+        localStorage.setItem("theme", nextTheme);
+        applyTheme(nextTheme);
+      }
+
+      function applyTheme(theme) {
+        if (theme === "system") {
+          const prefersDark = window.matchMedia(
+            "(prefers-color-scheme: dark)"
+          ).matches;
+          theme = prefersDark ? "dark" : "light";
+        }
+        document.body.setAttribute("data-theme", theme);
+
+        // Update button text based on applied theme
+        const themeButton = document.querySelector(".theme-toggle");
+        if (localStorage.getItem("theme") === "system") {
+          themeButton.textContent = `🖥️ System (${
+            theme === "light" ? "🌞 Light" : "🌙 Dark"
+          })`;
+        } else {
+          themeButton.textContent = theme === "light" ? "🌞 Light" : "🌙 Dark";
+        }
+      }
+
+      // Load saved theme correctly on page refresh
+      applyTheme(localStorage.getItem("theme") || "system");
+    </script>
+  </body>
+</html>
