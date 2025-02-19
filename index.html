@@ -111,7 +111,8 @@
         color: var(--text-color);
       }
       .theme-toggle:hover {
-        background: var(--input-bg);
+        background: var(--input-bg);        
+        color: var(--text-color);
       }
 
       /* Light Mode */
@@ -133,7 +134,7 @@
       }
     </style>
   </head>
-  <body>
+  <body data-theme="dark">
     <!-- Theme Toggle Button -->
     <button class="theme-toggle" onclick="toggleTheme()">🌗 Theme</button>
 
