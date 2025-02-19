@@ -38,7 +38,6 @@
       form input,
       form button {
         padding: 10px;
-        /* margin: 5px 0; */
         border: 1px solid var(--border-color);
         border-radius: 4px;
         background: var(--input-bg);
@@ -157,6 +156,12 @@
     </div>
 
     <script>
+      document
+        .getElementById("hexForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault(); // Prevent form from reloading the page
+          convertHexToRGB(); // Call the function to process input
+        });
       function convertToUppercase(input) {
         input.value = input.value.toUpperCase();
       }
